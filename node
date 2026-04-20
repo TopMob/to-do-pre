@@ -1,0 +1,49 @@
+#!/usr/bin/env sh
+self_path="$0"
+case "$self_path" in
+  /*) ;;
+  *) self_path="$(pwd)/$self_path" ;;
+esac
+
+resolve_candidate() {
+  candidate="$1"
+  if [ ! -x "$candidate" ]; then
+    return 1
+  fi
+  if [ "$candidate" = "$self_path" ]; then
+    return 1
+  fi
+  echo "$candidate"
+}
+
+for candidate in \
+  /usr/bin/node \
+  /usr/local/bin/node \
+  /opt/homebrew/bin/node \
+  "$HOME/.nvm/versions/node/current/bin/node" \
+  "$HOME/.volta/bin/node"; do
+  resolved="$(resolve_candidate "$candidate")" || continue
+  exec "$resolved" "$@"
+done
+
+if command -v which >/dev/null 2>&1; then
+  for candidate in $(which -a node 2>/dev/null); do
+    resolved="$(resolve_candidate "$candidate")" || continue
+    exec "$resolved" "$@"
+  done
+fi
+
+if command -v nodejs >/dev/null 2>&1; then
+  exec "$(command -v nodejs)" "$@"
+fi
+
+if command -v bun >/dev/null 2>&1; then
+  exec "$(command -v bun)" "$@"
+fi
+
+if command -v deno >/dev/null 2>&1; then
+  exec "$(command -v deno)" run "$@"
+fi
+
+printf '%s\n' 'JavaScript runtime is not available for `node` command' >&2
+exit 127
