@@ -1,0 +1,11 @@
+{
+  "name": "to-do-pre-main",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite",
+    "test": "bash tests/run.sh"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}
